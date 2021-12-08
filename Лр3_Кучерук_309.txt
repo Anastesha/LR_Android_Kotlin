@@ -1,0 +1,129 @@
+ val TAG = "LoginActivity"
+    //private var mDatabaseReference: DatabaseReference? = null
+    //private var mDatabase: FirebaseDatabase? = null
+
+
+    // Firebase refferences for Authentication.
+    private var mAuth: FirebaseAuth? = null
+    private var mUser : FirebaseUser? = null
+    private var mDatabase : DatabaseReference? = null
+    private var mAuthListener : FirebaseAuth.AuthStateListener? = null
+
+
+
+    //global variables
+    private var emailString : String? = null
+    private var passwordString : String? = null
+
+
+
+    // ActivityState : ONCREATE.
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_login)
+
+
+
+        // initializing firebase Auth and database Reference.
+        mAuth = FirebaseAuth.getInstance()
+        mDatabase = FirebaseDatabase.getInstance().reference
+        // getting the currently logined user.
+        mUser = mAuth?.currentUser
+
+
+
+        //[START auth_state_listener]
+        FirebaseAuth.AuthStateListener { firebaseAuth ->
+            val cuser = firebaseAuth.currentUser
+            if(mUser != null) {
+                Log.d("WOWOWOWOWO : ", "you dont girl!")
+            }
+        }
+
+
+
+    }
+    //ActivityState : ONSTART.
+    override fun onStart() {
+        super.onStart()
+
+
+
+        mAuth?.addAuthStateListener(mAuthListener!!)
+    }
+    //ActivityState : ONPAUSE.
+    override fun onPause() {
+        super.onPause()
+
+
+
+    }
+
+
+
+    // function for when the login button is clicked.
+    // TODO : Login Activity : Function# 1.
+     fun loginBtnClicked(view : View) {
+
+
+
+         emailString = loginEmailTxt.text.toString()
+         passwordString = loginPasswordtxt.text.toString()
+
+
+
+         if(!emailString.isNullOrEmpty() && !passwordString.isNullOrEmpty()) {
+
+
+
+             // Checking if the login cridentials are correct. and then changing the Auth State to logged in.
+             //TODO : Login Activity : Function# 3.
+             mAuth!!.signInWithEmailAndPassword(emailString!!, passwordString!!).addOnCompleteListener(this) { task ->
+
+
+
+                 if(task.isSuccessful) {
+
+
+
+                     // User ID token retrival  TODO: not sure what to do with the token yet.
+                     mUser!!.getIdToken(true)
+                             .addOnCompleteListener(OnCompleteListener {task: Task<GetTokenResult> ->
+                                 if(task.isSuccessful) {
+                                    var idToken = task.getResult().token
+                                     Log.d(TAG, "signInWithEmail:success :" + idToken)
+                                 } else {
+
+
+
+                                 }
+                             }) 
+                 } else {
+
+
+
+                     Log.e(TAG, "signInWithEmail:failure", task.exception)
+                     Toast.makeText(this@LoginActivity, "Authentication failed. Make sure email and password are correct",
+                             Toast.LENGTH_SHORT).show()
+                 }
+             } 
+
+
+
+         } else {
+             Toast.makeText(this, "Email or Password can not be empty.", Toast.LENGTH_LONG).show()
+         } 
+    } 
+
+
+
+    // TODO : Login Activity : Function#2
+     fun getHelpImgClicked(view : View) {
+        val builder = AlertDialog.Builder(this)
+        val dialogView = layoutInflater.inflate(R.layout.get_help_dialog, null)
+        builder.setView(dialogView)
+                .setNegativeButton("Close" ){ _, _ -> }.show()
+
+
+
+        }

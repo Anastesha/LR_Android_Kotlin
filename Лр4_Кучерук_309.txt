@@ -1,0 +1,80 @@
+ typealias Vector = List<Double>
+ typealias Matrix = List<Vector>
+ 
+ class MatrixBuilder {
+     private var matrixWidth: Int? = null
+     private val _result: MutableList<Vector> = mutableListOf()
+     val result: Matrix = _result
+ 
+     operator fun invoke(vararg vector: Double) = addVector(vector.toList())
+ 
+     operator fun invoke(vararg vector: Number) = addVector(vector.map { it.toDouble() })
+ 
+     private fun addVector(vectorList: List<Double>) {
+         _result.add(vectorList)
+         if (matrixWidth != null) {
+             require(vectorList.size == matrixWidth) {
+                 "Vector size must be the same among all builder invocations: vectorList,_result"
+             }
+         } else {
+             matrixWidth = vectorList.size
+         }
+     }
+ }
+ 
+ fun matrix(builder: MatrixBuilder.() -> Unit): Matrix = MatrixBuilder().apply(builder).result
+ 
+ fun main() {
+ 
+     val multiplied = matrix {
+         this(1, 2, 3, 4)
+         this(1, 2, 3, 4)
+         this(1, 2, 3, 4)
+     } * matrix {
+         this(5, 6)
+         this(7, 8)
+         this(9, 10)
+         this(11, 12)
+     }
+ 
+     multiplied
+         .transpose()
+         .print()
+ }
+ 
+ fun Matrix.transpose(): Matrix = this.asSequence()
+     .map { it.withIndex() }
+     .flatten()
+     .groupBy({ it.index }, { it.value })
+     .values
+     .toList()
+ 
+ operator fun Matrix.times(other: Matrix): Matrix {
+     val (rows1, cols1) = this.size()
+     val (_, cols2) = other.size()
+     return (0 until rows1).map { i ->
+         (0 until cols2).map { j ->
+             (0 until cols1).fold(0.0) { s, k ->
+                 s + this[i][k] * other[k][j]
+             }
+         }
+     }
+ }
+ 
+ fun Matrix.size(): Pair<Int, Int> = this.size to this.first().size
+ 
+ fun Pair<Int, Int>.zeroMatrix(): Matrix = List(this.first) { List(this.second) { 0.0 } }
+ 
+ fun Matrix.print() = println(this.joinToString(separator = "\n") { it.joinToString(separator = " ") })
+ 
+ fun List<Matrix>.sum(): Matrix {
+     val n = this.size
+     val (rowsCount, colCount) = this[0].size()
+     return (0 until rowsCount).map { i ->
+         (0 until colCount).map { j ->
+             (0 until n).fold(0.0) { s, k ->
+                 s + this[k][i][j]
+             }
+         }
+     }
+ }

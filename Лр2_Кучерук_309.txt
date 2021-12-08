@@ -1,0 +1,36 @@
+ import org.nield.kotlinstatistics.dbScanCluster
+ import kotlin.math.pow
+ import kotlin.math.sin
+ 
+ inline fun <V> IntProgression.mapDouble(mapper: (Double) -> V) = this.map { mapper(it.toDouble()) }
+ 
+ data class Point(val coordinates: Pair<Double, Double>, val cluster: Int)
+ 
+ fun main() {
+ 
+     val firstCluster = (1..100 step 1)
+         .mapDouble { x -> Point(x to x / 2, cluster = 1) }
+   
+     val secondCluster = (1..80 step 3)
+         .mapDouble { x -> Point(x to (x / 12).pow(2) + 20, cluster = 2) }
+ 
+     val thirdCluster = (60..150 step 1)
+         .mapDouble { x -> Point(x to 10 * sin(x / 5) + 15, cluster = 3) }
+ 
+     val points = firstCluster + secondCluster + thirdCluster
+   
+     val clusters = points.dbScanCluster(
+         xSelector = { (coords) -> coords.first },
+         ySelector = { (coords) -> coords.second },
+         maximumRadius = 5.0,
+         minPoints = 1
+     )
+   
+     val pointsWithMatchedClusters = clusters.withIndex()
+         .flatMap { (clusterIdx, matched) -> matched.points.map { p -> p to clusterIdx + 1 } }
+ 
+     require(clusters.size == 3) { clusters.size }
+   
+     val pointsWithMismatchedCluster = pointsWithMatchedClusters.filterNot { (p, cluster) -> cluster == p.cluster }
+     require(pointsWithMismatchedCluster.isEmpty()) { pointsWithMatchedClusters }
+ }

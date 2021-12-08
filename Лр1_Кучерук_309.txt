@@ -1,0 +1,39 @@
+fun main() {
+    var sum = 0
+    var iterations = 0
+ 
+    for(i in 0..5) {
+        sum += i
+    }
+}
+
+fun main() {
+    var aLotOfAs = ""
+    while (aLotOfAs.length < 10) {
+        aLotOfAs += "a"
+    }
+ 
+    println(aLotOfAs)
+}
+
+fun main() {
+    val (x, y, z) = Triple(1, 5, 0)
+    // val (x, y, z) = Triple(2, 2, 2)
+    // val (x, y, z) = Triple(3, 0, 1)
+    // val (x, y, z) = Triple(3, 2, 5)
+    // val (x, y, z) = Triple(0, 2, 4)
+ 
+    when {
+        x == y && y == z -> println("x = y = z")
+        z == 0 -> println("На плоскости x / y")
+        y == 0 -> println("На плоскости x / z")
+        x == 0 -> println("На плоскости y / z")
+        else -> println("Ничего особенного")
+    }
+}
+
+val (x, y, z) = Triple(1, 5, 0)
+val (x, y, z) = Triple(2, 2, 2)
+val (x, y, z) = Triple(3, 0, 1)
+val (x, y, z) = Triple(3, 2, 5)
+val (x, y, z) = Triple(0, 2, 4)
